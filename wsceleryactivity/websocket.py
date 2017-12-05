@@ -61,5 +61,8 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         pass
 
     def on_close(self):
-        if self.listeners:
-            self.listeners.pop()
+        if self in self.listeners:
+            self.listeners.remove(self)
+        if not self.listeners and self.periodic_callback:
+            logger.debug('Stopping dashboard updates timer')
+            self.periodic_callback.stop()
